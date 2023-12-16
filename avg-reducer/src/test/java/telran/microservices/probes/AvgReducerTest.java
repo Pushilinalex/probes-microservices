@@ -19,16 +19,15 @@ import telran.microservices.probes.dto.Probe;
 import telran.microservices.probes.entities.ListProbeValues;
 import telran.microservices.probes.repo.ListProbeRepo;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest
 @Import(TestChannelBinderConfiguration.class)
-@EnableAutoConfiguration
 public class AvgReducerTest {
     private static final long PROBE_ID_NO_AVG = 123;
     private static final long PROBE_ID_AVG = 124;
@@ -49,7 +48,7 @@ public class AvgReducerTest {
     Probe probeNoAvg = new Probe(PROBE_ID_NO_AVG, VALUE);
     Probe probeAvg = new Probe(PROBE_ID_AVG, VALUE);
     private String consumerBindingName = "avgConsumer-in-0";
-    private String producerBindingName = "avgConsumer-out-0";
+    private String producerBindingName = "avgProducer-out-0";
 
     @BeforeAll
     static void setUpAll() {
@@ -105,7 +104,7 @@ public class AvgReducerTest {
         assertNotNull(message);
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(probeAvg, mapper.readValue(message.getPayload(), Probe.class));
-        assertEquals(VALUE, redisMap.get(PROBE_ID_AVG).getValues().get(0));
+        assertTrue(redisMap.get(PROBE_ID_NO_AVG).getValues().isEmpty());
     }
 
 }
